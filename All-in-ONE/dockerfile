@@ -1,0 +1,29 @@
+FROM ubuntu:18.04
+
+ENV DEBIAN_FRONTEND=noninteractive
+ENV TZ=Europe/Paris
+
+RUN apt-get update && \
+    apt-get upgrade -y && \
+    apt-get install -y git sudo gnupg2 && \
+    apt-get clean && \
+    git clone https://github.com/tramed/openair-cn.git && \
+    git clone https://github.com/tramed/openair-cn-cups.git
+
+WORKDIR /openair-cn/scripts/
+
+RUN git checkout review-master-dev && \
+    ./build_hss_rel14 --check-installed-software --force && \
+    ./build_hss_rel14 --clean && \
+    ./build_mme --check-installed-software --force && \
+    ./build_mme --clean && \
+    apt-get clean
+
+
+WORKDIR /openair-cn-cups/build/scripts/
+RUN git checkout review-master-dev
+
+RUN ./build_spgwc -I -f && \
+    ./build_spgwc -c -V -b Debug -j && \
+    ./build_spgwu -I -f && \
+    ./build_spgwu -c -V -b Debug -j

@@ -1,0 +1,17 @@
+FROM ubuntu:18.04
+
+ENV DEBIAN_FRONTEND=noninteractive
+ENV TZ=Europe/Paris
+
+RUN apt-get update && \
+    apt-get upgrade -y && \
+    apt-get install -y git sudo && \
+    apt-get clean
+
+RUN git clone https://github.com/tramed/openair-cn-cups.git
+
+WORKDIR /openair-cn-cups/build/scripts/
+RUN git checkout review-master-dev
+
+RUN ./build_spgwu -I -f && \
+    ./build_spgwu -c -V -b Debug -j

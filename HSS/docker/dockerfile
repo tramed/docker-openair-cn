@@ -1,0 +1,20 @@
+FROM ubuntu:18.04
+
+ENV DEBIAN_FRONTEND=noninteractive
+ENV TZ=Europe/Paris
+ENV Cassandra_Server_IP='127.0.0.1'
+ENV MY_REALM='openairinterface.org'
+
+RUN apt-get update && \
+    apt-get upgrade -y && \
+    apt-get install -y git sudo gnupg2 && \
+    apt-get clean && \
+    git clone https://github.com/tramed/openair-cn.git
+
+WORKDIR /openair-cn/scripts/
+
+RUN git checkout review-master-dev && \
+    ./build_hss_rel14 --check-installed-software --force && \
+    ./build_hss_rel14 --clean && \
+    apt-get clean
+

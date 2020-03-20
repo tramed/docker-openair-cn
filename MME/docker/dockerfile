@@ -1,0 +1,17 @@
+FROM ubuntu:18.04
+
+ENV DEBIAN_FRONTEND=noninteractive
+ENV TZ=Europe/Paris
+
+RUN apt-get update && \
+    apt-get upgrade -y && \
+    apt-get install -y git sudo && \
+    apt-get clean && \
+    git clone https://github.com/tramed/openair-cn.git
+
+WORKDIR /openair-cn/scripts/
+
+RUN git checkout review-master-dev
+
+RUN ./build_mme --check-installed-software --force && \
+    ./build_mme --clean
