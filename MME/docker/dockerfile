@@ -15,3 +15,11 @@ RUN git checkout review-master-dev
 
 RUN ./build_mme --check-installed-software --force && \
     ./build_mme --clean
+
+RUN apt-get install -y net-tools bc && \
+    apt-get clean
+
+WORKDIR /
+COPY ./docker-entrypoint.sh /
+RUN chmod +x /docker-entrypoint.sh
+ENTRYPOINT [ "/docker-entrypoint.sh" ]

@@ -1,0 +1,99 @@
+version: '3'
+
+networks: 
+    db_net:
+        ipam: 
+            driver: default
+            config: 
+                - subnet: 192.168.0.0/24
+    s6a:
+        ipam: 
+            driver: default
+            config:
+                - subnet: 192.168.1.0/24
+    s1c:
+        ipam:
+            driver: default
+            config:
+                - subnet: 192.168.2.0/24
+    s11c:
+        ipam: 
+            driver: default
+            config:
+                - subnet: 192.168.3.0/24
+    sxab:
+        ipam: 
+            driver: default
+            config:
+                - subnet: 192.168.4.0/24
+    s1u:
+        ipam: 
+            driver: default
+            config:
+                - subnet: 192.168.5.0/24
+    sgi:
+        ipam: 
+            driver: default
+            config:
+                - subnet: 192.168.6.0/24
+
+
+
+services:
+    cassandra:
+        container_name: cassandra
+        hostname: cassandra
+        image: cassandra
+        volumes:
+            - ./db/:/tmp/cassandra/
+            - ./cassandra.sh:/cassandra.sh
+        command: "sh /cassandra.sh"
+        environment: 
+            CASSANDRA_CLUSTER_NAME: "HSS Cluster"
+            CASSANDRA_ENDPOINT_SNITCH: 'GossipingPropertyFileSnitch'
+            CASSANDRA_START_RPC: 'true'
+        networks: 
+            db_net:
+                ipv4_address: 192.168.0.3 # eth0
+    
+    hss:
+        container_name: hss
+        hostname: hss
+        image: openair-cn/hss
+        networks:
+            db_net:
+                ipv4_address: 192.168.0.2 # eth0
+            s6a:
+                ipv4_address: 192.168.1.2 # eth1
+    
+    mme:
+        container_name: mme
+        hostname: mme
+        image: openair-cn/mme
+        networks:
+            s6a:
+                ipv4_address: 192.168.1.4 # eth2
+            s1c:
+                ipv4_address: 192.168.2.4 # eth1
+            s11c:
+                ipv4_address: 192.168.3.4 # eth0
+    spgw-c:
+        container_name: spgw-c
+        hostname: spgwc
+        image: openair-cn/spgw-c
+        networks:
+            sxab:
+                ipv4_address: 192.168.4.5 # eth0
+            s11c:
+                ipv4_address: 192.168.3.5 # eth1
+    spgw-u:
+        container_name: spgw-u
+        hostname: spgwu
+        image: openair-cn/spgw-u
+        networks:
+            sxab:
+                ipv4_address: 192.168.4.6 # eth0
+            s1u:
+                ipv4_address: 192.168.5.6 # eth1
+            sgi:
+                ipv4_address: 192.168.6.6 # eth2

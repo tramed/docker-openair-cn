@@ -2,8 +2,9 @@ FROM ubuntu:18.04
 
 ENV DEBIAN_FRONTEND=noninteractive
 ENV TZ=Europe/Paris
-ENV Cassandra_Server_IP='127.0.0.1'
-ENV MY_REALM='openairinterface.org'
+ENV PREFIX='/usr/local/etc/oai'
+ENV Cassandra_Server_IP='192.168.0.3'
+ENV MY_REALM='home.lab'
 
 RUN apt-get update && \
     apt-get upgrade -y && \
@@ -18,3 +19,12 @@ RUN git checkout review-master-dev && \
     ./build_hss_rel14 --clean && \
     apt-get clean
 
+RUN apt-get install -y net-tools && \
+    apt-get clean
+
+WORKDIR /
+COPY ./docker-entrypoint.sh /
+RUN chmod +x /docker-entrypoint.sh
+ENTRYPOINT [ "/docker-entrypoint.sh" ]
+
+EXPOSE 9080 9081
